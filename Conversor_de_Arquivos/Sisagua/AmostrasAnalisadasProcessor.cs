@@ -18,7 +18,7 @@ namespace Conversor_de_Arquivos
         private static readonly string[] MasterHeaders =
         [
             "Municipio", "CodIBGE", "Regional", "Ano", "Forma", "Motivo", "Nome", "Codigo",
-            "NumeroAmostra", "DataColeta", "DataLaudo", "DataRegistroSisagua", "CategoriaArea",
+            "NumeroAmostra", "DataColeta", "Dia", "Mes", "DataLaudo", "DataRegistroSisagua", "CategoriaArea",
             "Zona", "ProcedenciaColeta", "PontoColeta", "Area", "Local", "DescricaoLocal",
             "Latitude", "Longitude", "HoraColeta", "Chuva48h", "Parametro", "CategoriaParametro", "Valor"
         ];
@@ -33,21 +33,21 @@ namespace Conversor_de_Arquivos
             ["Forma"] = "Forma",
             ["Nome"] = "Nome",
             ["Código"] = "Codigo",
-            ["N° da amostra"] = "Numero Amostra",
-            ["Data da coleta"] = "Data Coleta",
-            ["Data do laudo"] = "Data Laudo",
-            ["Data de registro SISAGUA"] = "Data Registro Sisagua",
-            ["Procedência da coleta"] = "Procedencia Coleta",
-            ["Ponto de coleta"] = "Ponto Coleta",
-            ["Categoria da Área"] = "Categoria Area",
+            ["N° da amostra"] = "NumeroAmostra",
+            ["Data da coleta"] = "DataColeta",
+            ["Data do laudo"] = "DataLaudo",
+            ["Data de registro SISAGUA"] = "DataRegistroSisagua",
+            ["Procedência da coleta"] = "ProcedenciaColeta",
+            ["Ponto de coleta"] = "PontoColeta",
+            ["Categoria da Área"] = "CategoriaArea",
             ["Zona"] = "Zona",
             ["Área"] = "Area",
             ["Local"] = "Local",
-            ["Descrição do local"] = "Descricao Local",
+            ["Descrição do local"] = "DescricaoLocal",
             ["Latitude"] = "Latitude",
             ["Longitude"] = "Longitude",
-            ["Hora da coleta"] = "Hora Coleta",
-            ["Chuva nas últimas 48h"] = "Chuva 48h",
+            ["Hora da coleta"] = "HoraColeta",
+            ["Chuva nas últimas 48h"] = "Chuva48h",
         };
 
         public async Task<AmostrasAnalisadasProcessingResult> ProcessAsync(
@@ -167,6 +167,25 @@ namespace Conversor_de_Arquivos
                         infoValues[kv.Value] = v.Length == 0 ? "-" : v;
                     }
 
+                    // Deriva Dia/Mes de DataColeta (dd/MM/yyyy). Segue a mesma regra: só
+                    // preenche se "Data da coleta" foi marcada nesse download; "-" se foi
+                    // marcada mas veio vazia; em branco se o campo nem existe no arquivo.
+                    if (infoColumnMap.Values.Contains("DataColeta"))
+                    {
+                        string dataColeta = infoValues["DataColeta"];
+                        if (dataColeta == "-")
+                        {
+                            infoValues["Dia"] = "-";
+                            infoValues["Mes"] = "-";
+                        }
+                        else
+                        {
+                            var partes = dataColeta.Split('/');
+                            infoValues["Dia"] = partes.Length == 3 ? partes[0] : "-";
+                            infoValues["Mes"] = partes.Length == 3 ? partes[1] : "-";
+                        }
+                    }
+
                     if (resultColumns.Count == 0)
                     {
                         // Nenhuma seção de resultado foi marcada nesse download -> campo
@@ -202,6 +221,12 @@ namespace Conversor_de_Arquivos
                 {
                     package = new ExcelPackage(new FileInfo(masterPath));
                     ws = package.Workbook.Worksheets[0];
+
+                    // Sempre realinha o cabeçalho com o MasterHeaders atual. Protege contra
+                    // desalinhamento se o schema mudar (colunas novas/reordenadas) e o
+                    // arquivo já existir de uma versão anterior do processor.
+                    for (int c = 0; c < MasterHeaders.Length; c++)
+                        ws.Cells[1, c + 1].Value = MasterHeaders[c];
 
                     int lastRow = ws.Dimension?.End.Row ?? 1;
                     int anoCol = Array.IndexOf(MasterHeaders, "Ano") + 1;
@@ -253,7 +278,7 @@ namespace Conversor_de_Arquivos
                 row[i] = key switch
                 {
                     "Parametro" => parametro,
-                    "Categoria Parametro" => categoriaParametro,
+                    "CategoriaParametro" => categoriaParametro,
                     "Valor" => valor,
                     _ => infoValues.TryGetValue(key, out var v) ? v : string.Empty
                 };

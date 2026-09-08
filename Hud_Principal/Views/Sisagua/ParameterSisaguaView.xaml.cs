@@ -24,7 +24,7 @@ namespace Hud_Principal.Views
 
             _infoItems =
             [
-                ChkMunicipio, ChkMotivo, ChkNome, ChkZona, ChkNumeroAmostra,
+                ChkMunicipio, ChkMotivo, ChkNome, ChkCodigo, ChkZona, ChkNumeroAmostra,
                 ChkDataColeta, ChkDataLaudo, ChkDataRegistro, ChkCategoriaArea,
                 ChkPrecedencia, ChkPontoColeta, ChkArea, ChkLocal, ChkDescricaoLocal,
                 ChkLatLong, ChkHoraColeta, ChkChuva
