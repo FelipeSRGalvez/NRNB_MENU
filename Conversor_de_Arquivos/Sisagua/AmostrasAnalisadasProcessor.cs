@@ -23,8 +23,6 @@ namespace Conversor_de_Arquivos
             "Latitude", "Longitude", "HoraColeta", "Chuva48h", "Parametro", "CategoriaParametro", "Valor"
         ];
 
-        // Validado contra arquivo real (Básicos e Demais, todos os campos marcados).
-        // Header do arquivo -> campo canônico do master.
         private static readonly Dictionary<string, string> InfoHeaders = new(StringComparer.Ordinal)
         {
             ["Município"] = "Municipio",
@@ -49,6 +47,17 @@ namespace Conversor_de_Arquivos
             ["Hora da coleta"] = "HoraColeta",
             ["Chuva nas últimas 48h"] = "Chuva48h",
         };
+
+        // Método auxiliar para tratar valores nulos, vazios ou contendo apenas "-"
+        private static string CleanValue(object? cellValue)
+        {
+            string val = cellValue?.ToString()?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(val) || val == "-")
+            {
+                return "Ignorado";
+            }
+            return val;
+        }
 
         public async Task<AmostrasAnalisadasProcessingResult> ProcessAsync(
             string rawFilePath,
@@ -90,11 +99,8 @@ namespace Conversor_de_Arquivos
 
                 int colCount = sheet.Columns.Count;
 
-                // Linha 5 (idx 4) = cabeçalho principal / rótulo de grupo (quando o parâmetro
-                // se desdobra em várias colunas, ex.: Agrotóxicos, Cianobactérias, Área).
-                // Linha 6 (idx 5) = subcabeçalho / nome específico da coluna, quando existir.
-                var effectiveName = new string[colCount];   // nome específico da coluna (usado como Parametro)
-                var groupLabel = new string[colCount];      // rótulo de grupo, propagado (forward-fill) da linha 5
+                var effectiveName = new string[colCount];
+                var groupLabel = new string[colCount];
 
                 string lastGroup = string.Empty;
                 for (int c = 0; c < colCount; c++)
@@ -107,7 +113,7 @@ namespace Conversor_de_Arquivos
                     effectiveName[c] = h6.Length > 0 ? h6 : h5;
                 }
 
-                var infoColumnMap = new Dictionary<int, string>();               // col -> campo canônico
+                var infoColumnMap = new Dictionary<int, string>();
                 var resultColumns = new List<(int col, string parametro, string categoria)>();
 
                 for (int c = 0; c < colCount; c++)
@@ -121,10 +127,6 @@ namespace Conversor_de_Arquivos
                         continue;
                     }
 
-                    // Se o rótulo de grupo (linha 5) é diferente do nome específico (linha 6),
-                    // a coluna faz parte de um grupo desdobrado (Demais Parâmetros) -> categoria
-                    // = nome do grupo (Agrotóxicos, Cianobactérias, Outros, etc.).
-                    // Se são iguais, é uma coluna isolada, sem desdobramento -> Parâmetro Básico.
                     string categoria = groupLabel[c] != name ? groupLabel[c] : "Básico";
                     resultColumns.Add((c, name, categoria));
                 }
@@ -148,8 +150,8 @@ namespace Conversor_de_Arquivos
 
                 for (int r = 6; r < sheet.Rows.Count; r++)
                 {
-                    string municipio = sheet.Rows[r][municipioCol]?.ToString()?.Trim() ?? string.Empty;
-                    if (string.IsNullOrWhiteSpace(municipio)) continue;
+                    string municipio = CleanValue(sheet.Rows[r][municipioCol]);
+                    if (municipio == "Ignorado") continue;
 
                     string regional = RondoniaRegionais.GetRegion(municipio);
 
@@ -163,33 +165,29 @@ namespace Conversor_de_Arquivos
 
                     foreach (var kv in infoColumnMap)
                     {
-                        string v = sheet.Rows[r][kv.Key]?.ToString()?.Trim() ?? string.Empty;
-                        infoValues[kv.Value] = v.Length == 0 ? "-" : v;
+                        // Aplica o CleanValue para substituir vazios e "-" por "Ignorado"
+                        infoValues[kv.Value] = CleanValue(sheet.Rows[r][kv.Key]);
                     }
 
-                    // Deriva Dia/Mes de DataColeta (dd/MM/yyyy). Segue a mesma regra: só
-                    // preenche se "Data da coleta" foi marcada nesse download; "-" se foi
-                    // marcada mas veio vazia; em branco se o campo nem existe no arquivo.
+                    // Deriva Dia/Mes de DataColeta
                     if (infoColumnMap.Values.Contains("DataColeta"))
                     {
                         string dataColeta = infoValues["DataColeta"];
-                        if (dataColeta == "-")
+                        if (dataColeta == "Ignorado")
                         {
-                            infoValues["Dia"] = "-";
-                            infoValues["Mes"] = "-";
+                            infoValues["Dia"] = "Ignorado";
+                            infoValues["Mes"] = "Ignorado";
                         }
                         else
                         {
                             var partes = dataColeta.Split('/');
-                            infoValues["Dia"] = partes.Length == 3 ? partes[0] : "-";
-                            infoValues["Mes"] = partes.Length == 3 ? partes[1] : "-";
+                            infoValues["Dia"] = partes.Length == 3 ? partes[0] : "Ignorado";
+                            infoValues["Mes"] = partes.Length == 3 ? partes[1] : "Ignorado";
                         }
                     }
 
                     if (resultColumns.Count == 0)
                     {
-                        // Nenhuma seção de resultado foi marcada nesse download -> campo
-                        // não selecionado, fica em branco (mesma regra das colunas de info).
                         masterRows.Add(BuildRow(infoValues, string.Empty, string.Empty, string.Empty));
                         continue;
                     }
@@ -197,18 +195,18 @@ namespace Conversor_de_Arquivos
                     bool anyResultForThisSample = false;
                     foreach (var (col, parametro, categoria) in resultColumns)
                     {
-                        string valor = sheet.Rows[r][col]?.ToString()?.Trim() ?? string.Empty;
-                        if (valor.Length == 0 || valor == "-") continue; // sem resultado nesse parâmetro pra essa amostra
+                        // Limpa o valor do parâmetro
+                        string valor = CleanValue(sheet.Rows[r][col]);
+
+                        // Ignora parâmetros sem valor nesta amostra
+                        if (valor == "Ignorado") continue;
 
                         masterRows.Add(BuildRow(infoValues, parametro, categoria, valor));
                         anyResultForThisSample = true;
                     }
 
-                    // Seção de resultado foi selecionada, mas nenhum parâmetro teve valor
-                    // nessa amostra -> "-" (selecionado, porém vazio), não branco. Preserva
-                    // a amostra no master em vez de deixá-la desaparecer.
                     if (!anyResultForThisSample)
-                        masterRows.Add(BuildRow(infoValues, "-", "-", "-"));
+                        masterRows.Add(BuildRow(infoValues, "Ignorado", "Ignorado", "Ignorado"));
                 }
 
                 progress?.Report($"[{year}] Atualizando planilha mestre de amostras analisadas...");
@@ -222,9 +220,6 @@ namespace Conversor_de_Arquivos
                     package = new ExcelPackage(new FileInfo(masterPath));
                     ws = package.Workbook.Worksheets[0];
 
-                    // Sempre realinha o cabeçalho com o MasterHeaders atual. Protege contra
-                    // desalinhamento se o schema mudar (colunas novas/reordenadas) e o
-                    // arquivo já existir de uma versão anterior do processor.
                     for (int c = 0; c < MasterHeaders.Length; c++)
                         ws.Cells[1, c + 1].Value = MasterHeaders[c];
 
