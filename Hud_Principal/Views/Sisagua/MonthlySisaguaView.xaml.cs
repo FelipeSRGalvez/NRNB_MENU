@@ -22,6 +22,9 @@ namespace Hud_Principal.Views
         }
 
         private async void BtnStartMonthly_Click(object sender, RoutedEventArgs e)
+            => await RunModuleSafelyAsync("Sisagua — Diretriz mensal", StartMonthlyAsync, StartMonthlySisagua);
+
+        private async Task StartMonthlyAsync()
         {
             var selectedYears = LstYears.SelectedItems
                 .Cast<int>()

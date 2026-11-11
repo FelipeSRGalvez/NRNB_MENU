@@ -25,6 +25,9 @@ namespace Hud_Principal.Views
         }
 
         private async void BtnStartAnnual_Click(object sender, RoutedEventArgs e)
+            => await RunModuleSafelyAsync("Sisagua — Diretriz anual", StartAnnualAsync, StartAnnualSisagua);
+
+        private async Task StartAnnualAsync()
         {
             if (CmbStartYear.SelectedItem is not int startYear ||
                 CmbEndYear.SelectedItem is not int endYear)

@@ -6,7 +6,9 @@ namespace WebAutomation
     public class VigiarFocosCalorAutomation : IAsyncDisposable
     {
         private const string BdQueimadasUrl        = "https://terrabrasilis.dpi.inpe.br/queimadas/bdqueimadas/#graficos";
-        private const int    FiresByCityTimeoutMs   = 10_000;
+        // A requisição firesByCity foi vista ainda em andamento aos 10 s (INPE lento); desistir nesse
+        // momento reiniciava o navegador com a requisição pendente. 60 s dá margem para resposta lenta.
+        private const int    FiresByCityTimeoutMs   = 60_000;
 
         private IPlaywright?       _playwright;
         private IBrowser?          _browser;
@@ -43,29 +45,35 @@ namespace WebAutomation
             progress?.Report("Browser pronto. Filtros configurados.");
         }
 
-        // Flow per week:
-        // (1) set dates via jQuery datepicker
-        // (2) click #filter-button
-        // (3) wait for firesByState — confirms filter was processed
-        // (4) click #box-firesByCity .layer-title — expands lazy-loaded accordion
-        // (5) capture graphicsfirescount?id=firesByCity via RouteAsync
+        // Fluxo por semana:
+        // (1) define as datas pelo datepicker do jQuery
+        // (2) clica em #filter-button
+        // (3) espera firesByState — confirma que o filtro foi processado
+        // (4) clica em #box-firesByCity .layer-title — expande o accordion carregado sob demanda
+        // (5) captura graphicsfirescount?id=firesByCity via RouteAsync
         public async Task<string> FetchWeekJsonAsync(DateTime start, DateTime end)
         {
+            if (_page == null)
+                throw new InvalidOperationException("Automação do BDQueimadas não foi inicializada.");
+
             var tcsCity       = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
             var capturedUrls  = new ConcurrentBag<string>();
 
             void OnRequest(object? _, IRequest req) => capturedUrls.Add(req.Url);
-            _page!.Request += OnRequest;
 
+            // O Playwright chama este handler por conta própria; ele nunca pode lançar exceção. Uma exceção
+            // aqui não tem quem a capture (apareceu como "Route is already handled!" quando o
+            // navegador foi reiniciado enquanto FetchAsync ainda esperava o INPE).
             Func<IRoute, Task> handler = async route =>
             {
-                if (!route.Request.Url.Contains("id=firesByCity"))
-                {
-                    await route.ContinueAsync();
-                    return;
-                }
                 try
                 {
+                    if (!route.Request.Url.Contains("id=firesByCity"))
+                    {
+                        await route.ContinueAsync();
+                        return;
+                    }
+
                     var apiResponse = await route.FetchAsync();
                     string body = await apiResponse.TextAsync();
                     tcsCity.TrySetResult(body);
@@ -79,64 +87,75 @@ namespace WebAutomation
                 catch (Exception ex)
                 {
                     tcsCity.TrySetException(ex);
-                    await route.AbortAsync();
+                    try { await route.AbortAsync(); }
+                    catch { /* rota já tratada, ou página/navegador já fechado */ }
                 }
             };
 
-            await _page.RouteAsync("**/graphicsfirescount**", handler);
-
-            await _page.EvaluateAsync(
-                $"$('#filter-date-from').val('{start:dd/MM/yyyy}')" +
-                $".datepicker('setDate', new Date({start.Year},{start.Month - 1},{start.Day}))");
-            await _page.EvaluateAsync(
-                $"$('#filter-date-to').val('{end:dd/MM/yyyy}')" +
-                $".datepicker('setDate', new Date({end.Year},{end.Month - 1},{end.Day}))");
-
-            await _page.EvaluateAsync(
-                "document.getElementById('filter-button')" +
-                ".dispatchEvent(new MouseEvent('click', {bubbles:true, cancelable:true}))");
-
+            // A rota e o listener são sempre removidos (finally), para que uma tentativa com falha nunca
+            // deixe handlers acumulados na página para a próxima tentativa.
+            _page.Request += OnRequest;
             try
             {
-                await _page.WaitForResponseAsync(
-                    r => r.Url.Contains("id=firesByState"),
-                    new PageWaitForResponseOptions { Timeout = 15_000 });
+                await _page.RouteAsync("**/graphicsfirescount**", handler);
+
+                await _page.EvaluateAsync(
+                    $"$('#filter-date-from').val('{start:dd/MM/yyyy}')" +
+                    $".datepicker('setDate', new Date({start.Year},{start.Month - 1},{start.Day}))");
+                await _page.EvaluateAsync(
+                    $"$('#filter-date-to').val('{end:dd/MM/yyyy}')" +
+                    $".datepicker('setDate', new Date({end.Year},{end.Month - 1},{end.Day}))");
+
+                await _page.EvaluateAsync(
+                    "document.getElementById('filter-button')" +
+                    ".dispatchEvent(new MouseEvent('click', {bubbles:true, cancelable:true}))");
+
+                try
+                {
+                    await _page.WaitForResponseAsync(
+                        r => r.Url.Contains("id=firesByState"),
+                        new PageWaitForResponseOptions { Timeout = 15_000 });
+                }
+                catch (TimeoutException) { }
+
+                bool isOpen = await _page.EvaluateAsync<bool>(
+                    "document.querySelector('#box-firesByCity div[style]').style.display !== 'none'");
+                _progress?.Report($"[accordion] firesByCity aberto={isOpen}; " +
+                                  (isOpen ? "aguardando refresh automático" : "clicando para abrir"));
+                if (!isOpen)
+                    await _page.ClickAsync("#box-firesByCity .layer-title");
+
+                try
+                {
+                    return await tcsCity.Task.WaitAsync(TimeSpan.FromMilliseconds(FiresByCityTimeoutMs));
+                }
+                catch (TimeoutException)
+                {
+                    string urlList = capturedUrls.Count == 0
+                        ? "(nenhuma URL disparada)"
+                        : string.Join("\n  ", capturedUrls);
+
+                    throw new InvalidOperationException(
+                        $"Timeout: firesByCity não interceptado após expandir accordion.\n" +
+                        $"URLs capturadas:\n  {urlList}");
+                }
             }
-            catch (TimeoutException) { }
-
-            bool isOpen = await _page.EvaluateAsync<bool>(
-                "document.querySelector('#box-firesByCity div[style]').style.display !== 'none'");
-            _progress?.Report($"[accordion] firesByCity aberto={isOpen}; " +
-                              (isOpen ? "aguardando refresh automático" : "clicando para abrir"));
-            if (!isOpen)
-                await _page.ClickAsync("#box-firesByCity .layer-title");
-
-            try
-            {
-                string json = await tcsCity.Task.WaitAsync(TimeSpan.FromMilliseconds(FiresByCityTimeoutMs));
-                _page.Request -= OnRequest;
-                await _page.UnrouteAsync("**/graphicsfirescount**", handler);
-                return json;
-            }
-            catch (TimeoutException)
+            finally
             {
                 _page.Request -= OnRequest;
-                await _page.UnrouteAsync("**/graphicsfirescount**", handler);
-
-                string urlList = capturedUrls.Count == 0
-                    ? "(nenhuma URL disparada)"
-                    : string.Join("\n  ", capturedUrls);
-
-                throw new InvalidOperationException(
-                    $"Timeout: firesByCity não interceptado após expandir accordion.\n" +
-                    $"URLs capturadas:\n  {urlList}");
+                try { await _page.UnrouteAsync("**/graphicsfirescount**", handler); }
+                catch { /* página/navegador pode já ter sido fechado */ }
             }
         }
 
+        // Também usado para reiniciar a sessão entre tentativas; não pode lançar exceção se o
+        // navegador já tiver travado ou sido fechado.
         public async ValueTask DisposeAsync()
         {
-            if (_browser != null) await _browser.CloseAsync();
-            _playwright?.Dispose();
+            try { if (_browser != null) await _browser.CloseAsync(); }
+            catch { /* navegador já fechado */ }
+            try { _playwright?.Dispose(); }
+            catch { /* driver já encerrado */ }
             _browser    = null;
             _playwright = null;
             _page       = null;

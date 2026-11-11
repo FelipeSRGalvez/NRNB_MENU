@@ -78,7 +78,7 @@ namespace WebAutomation
                 await radioMensal.EvaluateAsync("el => el.click()");
                 await Task.Delay(3000);
 
-                // Loop years → parameters
+                // Percorre anos → parâmetros
                 foreach (var year in years)
                 {
                     progress?.Report($"Selecionando ano {year}...");

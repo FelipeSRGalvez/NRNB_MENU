@@ -79,21 +79,21 @@ namespace WebAutomation
                 await radioAnual.EvaluateAsync("el => el.click()");
                 await Task.Delay(3000);
 
-                // Start year
+                // Ano inicial
                 progress?.Report($"Selecionando período {startYear} a {endYear}...");
                 await page.ClickAsync("#anoInicial_label");
                 await Task.Delay(500);
                 await page.ClickAsync($"#anoInicial_panel li[data-label='{startYear}']");
                 await Task.Delay(500);
 
-                // End year
+                // Ano final
                 await page.ClickAsync("#anoFinal_label");
                 await Task.Delay(500);
                 await page.ClickAsync($"#anoFinal_panel li[data-label='{endYear}']");
                 await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
                 await Task.Delay(1000);
 
-                // Loop parameters
+                // Percorre os parâmetros
                 int total = Parameters.Count;
                 for (int i = 0; i < total; i++)
                 {

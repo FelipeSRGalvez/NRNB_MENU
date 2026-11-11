@@ -27,6 +27,7 @@ namespace Hud_Principal.Views
 
                 TxtEmail.Text = config.Vigiagua.Email;
                 TxtPassword.Password = config.Vigiagua.Password;
+                TxtPasswordVisible.Text = config.Vigiagua.Password;
                 TxtRawFolder.Text = config.Vigiagua.RawFilesFolder;
                 TxtMonthlyDirectiveFolder.Text = config.Vigiagua.MonthlyDirectiveFolder;
                 TxtAnnualDirectiveFolder.Text = config.Vigiagua.AnnualDirectiveFolder;
@@ -43,6 +44,7 @@ namespace Hud_Principal.Views
 
                 TxtGalUsername.Text = config.Gal.Username;
                 TxtGalPassword.Password = config.Gal.Password;
+                TxtGalPasswordVisible.Text = config.Gal.Password;
                 TxtGalModule.Text = config.Gal.Module;
                 TxtGalLaboratory.Text = config.Gal.Laboratory;
                 TxtGalRawFolder.Text = config.Gal.GalMonthlyRawFolder;
@@ -50,11 +52,11 @@ namespace Hud_Principal.Views
             }
             catch (FileNotFoundException)
             {
-                // config.json not yet created — leave fields at defaults
+                // config.json ainda não criado — mantém os campos com os valores padrão
             }
             catch (Exception)
             {
-                // Malformed config — leave fields at defaults
+                // Configuração malformada — mantém os campos com os valores padrão
             }
         }
 
@@ -66,7 +68,7 @@ namespace Hud_Principal.Views
             catch { config = new Configuration(); }
 
             config.Vigiagua.Email = TxtEmail.Text;
-            config.Vigiagua.Password = TxtPassword.Password;
+            config.Vigiagua.Password = ReadPassword(TxtPassword, TxtPasswordVisible);
             config.Vigiagua.RawFilesFolder = TxtRawFolder.Text;
             config.Vigiagua.MonthlyDirectiveFolder = TxtMonthlyDirectiveFolder.Text;
             config.Vigiagua.AnnualDirectiveFolder = TxtAnnualDirectiveFolder.Text;
@@ -82,7 +84,7 @@ namespace Hud_Principal.Views
             config.Vigidesastres.MunicipalMeshFile = TxtVigidesastresMeshFile.Text;
 
             config.Gal.Username = TxtGalUsername.Text;
-            config.Gal.Password = TxtGalPassword.Password;
+            config.Gal.Password = ReadPassword(TxtGalPassword, TxtGalPasswordVisible);
             config.Gal.Module = TxtGalModule.Text;
             config.Gal.Laboratory = TxtGalLaboratory.Text;
             config.Gal.GalMonthlyRawFolder = TxtGalRawFolder.Text;
@@ -159,35 +161,26 @@ namespace Hud_Principal.Views
         }
 
         private void BtnToggleGalPassword_Click(object sender, RoutedEventArgs e)
-        {
-            if (TxtGalPasswordVisible.Visibility == Visibility.Collapsed)
-            {
-                TxtGalPasswordVisible.Text = TxtGalPassword.Password;
-                TxtGalPasswordVisible.Visibility = Visibility.Visible;
-                TxtGalPassword.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                TxtGalPassword.Password = TxtGalPasswordVisible.Text;
-                TxtGalPassword.Visibility = Visibility.Visible;
-                TxtGalPasswordVisible.Visibility = Visibility.Collapsed;
-            }
-        }
+            => TogglePasswordVisibility(TxtGalPassword, TxtGalPasswordVisible);
 
         private void BtnTogglePassword_Click(object sender, RoutedEventArgs e)
+            => TogglePasswordVisibility(TxtPassword, TxtPasswordVisible);
+
+        // O controle visível no momento contém o último valor digitado pelo usuário.
+        private static string ReadPassword(PasswordBox pwd, TextBox visible)
+            => visible.Visibility == Visibility.Visible ? visible.Text : pwd.Password;
+
+        // Copia o valor atual para o controle que será exibido antes de alternar,
+        // para que os dois controles tenham sempre a mesma senha.
+        private static void TogglePasswordVisibility(PasswordBox pwd, TextBox visible)
         {
-            if (TxtPasswordVisible.Visibility == Visibility.Collapsed)
-            {
-                TxtPasswordVisible.Text = TxtPassword.Password;
-                TxtPasswordVisible.Visibility = Visibility.Visible;
-                TxtPassword.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                TxtPassword.Password = TxtPasswordVisible.Text;
-                TxtPassword.Visibility = Visibility.Visible;
-                TxtPasswordVisible.Visibility = Visibility.Collapsed;
-            }
+            string current = ReadPassword(pwd, visible);
+            pwd.Password = current;
+            visible.Text = current;
+
+            bool showPlainText = visible.Visibility != Visibility.Visible;
+            visible.Visibility = showPlainText ? Visibility.Visible : Visibility.Collapsed;
+            pwd.Visibility = showPlainText ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void BtnRawFolderDirective_Click(object sender, RoutedEventArgs e)

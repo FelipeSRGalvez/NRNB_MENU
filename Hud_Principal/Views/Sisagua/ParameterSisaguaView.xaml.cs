@@ -147,6 +147,9 @@ namespace Hud_Principal.Views
         }
 
         private async void BtnStart_Click(object sender, RoutedEventArgs e)
+            => await RunModuleSafelyAsync("Sisagua — Amostras Analisadas", StartAsync, BtnStart);
+
+        private async Task StartAsync()
         {
             var selectedYears = LstYears.SelectedItems.Cast<int>().OrderBy(y => y).ToList();
 

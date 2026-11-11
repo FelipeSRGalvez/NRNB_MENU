@@ -10,12 +10,12 @@ namespace Conversor_de_Arquivos
         private static int YearOfWeek(DateTime start, DateTime end)
         {
             if (start.Year == end.Year) return start.Year;
-            // Week spans Dec/Jan boundary — the year with >= 4 days owns the week
+            // Semana na virada dez/jan — pertence ao ano que tiver >= 4 dias nela
             int daysInStartYear = 31 - start.Day + 1;
             return daysInStartYear >= 4 ? start.Year : end.Year;
         }
 
-        // Returns the Sunday that begins Week 1 of the given year.
+        // Retorna o domingo que inicia a semana 1 do ano informado.
         internal static DateTime FirstWeekStart(int year)
         {
             var jan1 = new DateTime(year, 1, 1);
@@ -26,7 +26,7 @@ namespace Conversor_de_Arquivos
                 : candidate.AddDays(7);
         }
 
-        // Returns the start date (Sunday) of week `week` in year `year`.
+        // Retorna a data de início (domingo) da semana `week` do ano `year`.
         public static DateTime WeekStart(int year, int week)
             => FirstWeekStart(year).AddDays((week - 1) * 7);
 

@@ -13,7 +13,7 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,60,0,0">
             <StackPanel Margin="40,10" MaxWidth="500">
 
-                <!-- Header -->
+                <!-- Cabeçalho -->
                 <StackPanel Margin="0,0,0,20">
                     <TextBlock Text="NRNB &#x2014; N&#xFA;cleo de Rede de Notifica&#xE7;&#xE3;o e Banco de Dados"
                                FontSize="11" Foreground="#666666"/>

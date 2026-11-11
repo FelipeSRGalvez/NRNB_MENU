@@ -18,7 +18,7 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="48,24,48,40">
 
-                <!-- Header -->
+                <!-- Cabeçalho -->
                 <StackPanel Margin="0,0,0,20">
                     <TextBlock Text="Vigiagua &#x2014; Vigilância da Qualidade da Água para Consumo Humano"
                                FontSize="11" Foreground="#666666"/>
@@ -30,14 +30,14 @@
 
                 <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
 
-                <!-- Logo -->
+                <!-- Logotipo -->
                 <Image Width="140" Height="140"
                        Margin="0,0,0,24"
                        HorizontalAlignment="Left"
                        RenderOptions.BitmapScalingMode="HighQuality"
                        Source="/Assets/Vigiagua_Logo.png"/>
 
-                <!-- Description -->
+                <!-- Descrição -->
                 <TextBlock TextWrapping="Wrap"
                            Foreground="#cccccc"
                            FontSize="13"
@@ -57,7 +57,7 @@
 
                 <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
 
-                <!-- Parameters -->
+                <!-- Parâmetros -->
                 <TextBlock Text="PAR&#xC2;METROS"
                            FontSize="11" Foreground="#555555"
                            FontWeight="SemiBold"
@@ -80,7 +80,7 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Action -->
+                <!-- Ação -->
                 <Button x:Name="StartAnnualSisagua"
                         Content="Iniciar Processo"
                         HorizontalAlignment="Left"

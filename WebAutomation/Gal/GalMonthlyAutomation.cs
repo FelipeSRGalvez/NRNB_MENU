@@ -16,6 +16,13 @@ namespace WebAutomation
             string ibgeCode,
             IProgress<string> progress)
         {
+            // Falha logo, antes de abrir o navegador: sem o solver não há como fazer login.
+            if (!File.Exists(CaptchaSolverPath))
+            {
+                progress.Report($"Falha: captcha_solver.exe não encontrado em {AppDomain.CurrentDomain.BaseDirectory}");
+                return false;
+            }
+
             using var playwright = await Playwright.CreateAsync();
             await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
@@ -30,8 +37,8 @@ namespace WebAutomation
 
             var context = await browser.NewContextAsync();
 
-            // Supresses window.print() at the context level so any tab opened by window.open()
-            // has the override injected before its onload fires.
+            // Suprime window.print() no nível do contexto, para que qualquer aba aberta por window.open()
+            // já receba a substituição antes de o onload dela disparar.
             await context.AddInitScriptAsync("window.print = () => {};");
 
             var page = await context.NewPageAsync();
@@ -102,11 +109,28 @@ namespace WebAutomation
                         await page.WaitForTimeoutAsync(500);
                     }
                 }
+                catch (CaptchaSolverException ex)
+                {
+                    // Falha do solver não é captcha errado: tentar de novo só repetiria a falha.
+                    progress.Report($"Falha no leitor de captcha: {ex.Message}");
+                    return false;
+                }
                 catch (Exception ex)
                 {
+                    // Janela do navegador fechada ou travada: qualquer nova chamada nesta página
+                    // falharia de novo, então para aqui em vez de tentar novamente.
+                    if (page.IsClosed || !browser.IsConnected)
+                    {
+                        progress.Report("Falha: o navegador do GAL foi fechado ou parou de responder durante o login.");
+                        return false;
+                    }
+
                     progress.Report($"Erro na tentativa {attempt}: {ex.Message}");
                     attempt++;
-                    await page.WaitForTimeoutAsync(2000);
+
+                    // Task.Delay em vez de page.WaitForTimeoutAsync: esperar numa página com defeito
+                    // lançava uma segunda exceção de dentro deste catch e derrubava o menu inteiro.
+                    await Task.Delay(2000);
                 }
             }
 
@@ -223,11 +247,9 @@ namespace WebAutomation
 
             progress.Report($"Imagem salva em: {tempImg} | Existe: {File.Exists(tempImg)} | Tamanho: {imgBytes.Length}");
 
-            string solverPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "captcha_solver.exe");
-
             var psi = new System.Diagnostics.ProcessStartInfo
             {
-                FileName = solverPath,
+                FileName = CaptchaSolverPath,
                 Arguments = $"\"{tempImg}\"",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -235,17 +257,63 @@ namespace WebAutomation
                 CreateNoWindow = true
             };
 
-            using var process = System.Diagnostics.Process.Start(psi)!;
-            string output = await process.StandardOutput.ReadToEndAsync();
-            string error  = await process.StandardError.ReadToEndAsync();
-            await process.WaitForExitAsync();
+            System.Diagnostics.Process process;
+            try
+            {
+                process = System.Diagnostics.Process.Start(psi)
+                    ?? throw new CaptchaSolverException("não foi possível iniciar captcha_solver.exe.");
+            }
+            catch (System.ComponentModel.Win32Exception ex)
+            {
+                throw new CaptchaSolverException($"não foi possível iniciar captcha_solver.exe ({ex.Message}).");
+            }
 
-            if (!string.IsNullOrWhiteSpace(error))
-                progress.Report($"Erro solver: {error}");
+            using (process)
+            {
+                // Lê as duas saídas em paralelo para evitar travamento por buffer cheio.
+                var outputTask = process.StandardOutput.ReadToEndAsync();
+                var errorTask  = process.StandardError.ReadToEndAsync();
 
-            string text = output.Trim().ToUpper();
-            progress.Report($"OCR leu: '{text}'");
-            return text;
+                using var timeout = new CancellationTokenSource(CaptchaSolverTimeout);
+                try
+                {
+                    await process.WaitForExitAsync(timeout.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    KillProcessTree(process);
+                    throw new CaptchaSolverException(
+                        $"captcha_solver.exe não respondeu em {CaptchaSolverTimeout.TotalSeconds:0} s e foi encerrado.");
+                }
+
+                string output = await outputTask;
+                string error  = await errorTask;
+
+                if (process.ExitCode != 0)
+                    throw new CaptchaSolverException(
+                        $"captcha_solver.exe terminou com código {process.ExitCode}. {error.Trim()}");
+
+                if (!string.IsNullOrWhiteSpace(error))
+                    progress.Report($"Aviso do solver: {error.Trim()}");
+
+                string text = output.Trim().ToUpper();
+                progress.Report($"OCR leu: '{text}'");
+                return text;
+            }
         }
+
+        private static readonly TimeSpan CaptchaSolverTimeout = TimeSpan.FromSeconds(60);
+
+        private static string CaptchaSolverPath
+            => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "captcha_solver.exe");
+
+        private static void KillProcessTree(System.Diagnostics.Process process)
+        {
+            try { if (!process.HasExited) process.Kill(entireProcessTree: true); }
+            catch { /* já encerrou */ }
+        }
+
+        // Falha do processo externo de OCR (ausente, travado, sem resposta no tempo) — não é captcha errado.
+        private sealed class CaptchaSolverException(string message) : Exception(message);
     }
 }

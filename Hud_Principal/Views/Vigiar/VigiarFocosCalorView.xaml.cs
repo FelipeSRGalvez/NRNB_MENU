@@ -18,6 +18,9 @@ namespace Hud_Principal.Views
         }
 
         private async void BtnStart_Click(object sender, RoutedEventArgs e)
+            => await RunModuleSafelyAsync("Vigiar — Focos de Calor", StartAsync, BtnStart);
+
+        private async Task StartAsync()
         {
             var selectedYears = ListBoxAnos.SelectedItems
                 .Cast<int>()
@@ -34,7 +37,10 @@ namespace Hud_Principal.Views
 
             var errors = PathVerifier.Verify(
             [
-                (config.Vigiar.WildfiresFolder, "Pasta de queimadas não configurada.")
+                (config.Vigiar.WildfiresFolder, "Pasta de queimadas não configurada."),
+                (config.Vigiar.RawFilesFolder,
+                 "Pasta de arquivos brutos do Vigiar não configurada (Configurações → Vigiar → Pasta Arquivos Brutos). " +
+                 "Ela guarda cada semana baixada para retomar de onde parou.")
             ]);
 
             if (errors.Count > 0)
@@ -45,7 +51,6 @@ namespace Hud_Principal.Views
 
             string masterPath = Path.Combine(config.Vigiar.WildfiresFolder, "FOCOS_CALOR_MESTRE.xlsx");
 
-            BtnStart.IsEnabled = false;
             TxtStatus.Text = string.Empty;
 
             string logPath = Path.Combine(Path.GetTempPath(), "nrnb_vigiar_debug.log");
@@ -58,26 +63,42 @@ namespace Hud_Principal.Views
                 File.AppendAllText(logPath, msg + "\n");
             });
 
+            // O navegador só é aberto quando alguma semana realmente precisa ser baixada, e é
+            // recriado (resetSession) entre as tentativas para que uma página com defeito não repita a falha.
+            await using var automation = new VigiarFocosCalorAutomation();
+            bool initialized = false;
+
+            async Task<string> FetchWeekAsync(DateTime start, DateTime end)
+            {
+                if (!initialized)
+                {
+                    await automation.InitializeAsync(progress);
+                    initialized = true;
+                }
+                return await automation.FetchWeekJsonAsync(start, end);
+            }
+
+            async Task ResetSessionAsync()
+            {
+                initialized = false;
+                await automation.DisposeAsync();
+            }
+
             try
             {
-                await using var automation = new VigiarFocosCalorAutomation();
-                await automation.InitializeAsync(progress);
-
                 await new VigiarFocosCalorService().ExecuteAsync(
                     masterPath,
+                    config.Vigiar.RawFilesFolder,
                     selectedYears,
-                    (start, end) => automation.FetchWeekJsonAsync(start, end),
+                    FetchWeekAsync,
+                    ResetSessionAsync,
                     progress);
             }
             catch (Exception ex)
             {
-                string detalhe = $"Erro inesperado: {ex.GetType().Name}: {ex.Message}";
-                AppendStatus(detalhe);
-                File.AppendAllText(logPath, detalhe + "\n" + ex.StackTrace + "\n");
-            }
-            finally
-            {
-                BtnStart.IsEnabled = true;
+                AppendStatus("Coleta interrompida por erro. As semanas já baixadas foram mantidas e serão aproveitadas na próxima execução.");
+                File.AppendAllText(logPath, $"Erro: {ex}\n");
+                throw; // RunModuleSafelyAsync registra no log e avisa o usuário
             }
         }
 

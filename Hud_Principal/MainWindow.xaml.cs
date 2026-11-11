@@ -57,9 +57,6 @@ namespace Hud_Principal
         private void BtnGal_Click(object sender, RoutedEventArgs e)
             => ToggleSubmenu(GalSubmenu, GalChevronRotation);
 
-        private void BtnIdaron_Click(object sender, RoutedEventArgs e)
-            => ToggleSubmenu(IdaronSubmenu, IdaronChevronRotation);
-
         // Lógica para navegação de links na página xaml
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {

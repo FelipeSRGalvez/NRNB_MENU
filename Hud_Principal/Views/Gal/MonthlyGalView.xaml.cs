@@ -22,14 +22,14 @@ namespace Hud_Principal.Views
             TxtEndDate.Text   = DateTime.Now.ToString("dd/MM/yyyy");
         }
 
-        // Block every non-digit character; "/" is auto-inserted by Date_TextChanged.
+        // Bloqueia todo caractere que não seja dígito; a "/" é inserida automaticamente por Date_TextChanged.
         private void Date_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             if (!e.Text.All(char.IsDigit))
                 e.Handled = true;
         }
 
-        // After each keystroke, strip non-digits and rebuild "dd/MM/yyyy" layout.
+        // Após cada tecla, remove o que não for dígito e remonta o formato "dd/MM/yyyy".
         private void Date_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             if (_formattingDate) return;
@@ -56,7 +56,7 @@ namespace Hud_Principal.Views
             tb.ClearValue(System.Windows.Controls.Control.BorderBrushProperty);
         }
 
-        // Validate the final date when the field loses focus.
+        // Valida a data final quando o campo perde o foco.
         private void Date_LostFocus(object sender, RoutedEventArgs e)
         {
             var tb = (WpfTextBox)sender;
@@ -73,6 +73,9 @@ namespace Hud_Principal.Views
         }
 
         private async void BtnStart_Click(object sender, RoutedEventArgs e)
+            => await RunModuleSafelyAsync("GAL — Acompanhamento Mensal", StartAsync, BtnStart);
+
+        private async Task StartAsync()
         {
             if (string.IsNullOrWhiteSpace(TxtStartDate.Text) ||
                 string.IsNullOrWhiteSpace(TxtEndDate.Text) ||

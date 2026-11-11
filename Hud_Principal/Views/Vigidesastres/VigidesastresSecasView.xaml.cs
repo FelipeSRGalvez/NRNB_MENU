@@ -22,6 +22,9 @@ namespace Hud_Principal.Views
 
         // Coleta (download/extração) e, em seguida, processamento para SECAS_MESTRE.xlsx.
         private async void BtnRun_Click(object sender, RoutedEventArgs e)
+            => await RunModuleSafelyAsync("Vigidesastres — Monitor de Secas", RunAsync, BtnRun);
+
+        private async Task RunAsync()
         {
             var selectedYears = ListBoxAnos.SelectedItems
                 .Cast<int>()

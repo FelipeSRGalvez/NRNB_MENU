@@ -19,6 +19,9 @@ namespace Hud_Principal.Views
         }
 
         private async void BtnStartImplementation_Click(object sender, RoutedEventArgs e)
+            => await RunModuleSafelyAsync("Sisagua — Implementação", StartImplementationAsync, BtnStartImplementation);
+
+        private async Task StartImplementationAsync()
         {
             var selectedYears = LstYears.SelectedItems
                 .Cast<int>()

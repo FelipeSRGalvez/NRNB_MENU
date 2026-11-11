@@ -18,7 +18,7 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="48,24,48,40">
 
-                <!-- Header -->
+                <!-- Cabeçalho -->
                 <StackPanel Margin="0,0,0,20">
                     <TextBlock Text="Vigidesastres — Vigilância em Saúde Relacionada aos Riscos de Desastres"
                                FontSize="11" Foreground="#666666"/>
@@ -30,14 +30,14 @@
 
                 <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
 
-                <!-- Logo -->
+                <!-- Logotipo -->
                 <Image Width="180" Height="180"
                        Margin="0,0,0,24"
                        HorizontalAlignment="Left"
                        RenderOptions.BitmapScalingMode="HighQuality"
                        Source="/Assets/Vigidesastres_Logo.png"/>
 
-                <!-- Description -->
+                <!-- Descrição -->
                 <TextBlock TextWrapping="Wrap"
                            Foreground="#cccccc"
                            FontSize="13"
@@ -59,7 +59,7 @@
 
                 <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
 
-                <!-- Year selection -->
+                <!-- Seleção de anos -->
                 <StackPanel Margin="0,0,0,24">
                     <TextBlock Text="Anos" Foreground="#999999" FontSize="12" Margin="0,0,0,6"/>
                     <TextBlock Text="Clique para selecionar um ou mais anos."
@@ -76,7 +76,7 @@
                              HorizontalAlignment="Left"/>
                 </StackPanel>
 
-                <!-- Action -->
+                <!-- Ação -->
                 <Button x:Name="BtnRun"
                         Content="Coletar e Processar"
                         HorizontalAlignment="Left"
@@ -85,14 +85,14 @@
                         Margin="0,0,0,16"
                         Click="BtnRun_Click"/>
 
-                <!-- Summary -->
+                <!-- Resumo -->
                 <TextBlock x:Name="TxtSummary"
                            TextWrapping="Wrap"
                            Foreground="#1D9E75"
                            FontSize="13"
                            Margin="0,0,0,8"/>
 
-                <!-- Status log -->
+                <!-- Log de status -->
                 <Border Background="#111111"
                         BorderBrush="#2e2e2e"
                         BorderThickness="1"

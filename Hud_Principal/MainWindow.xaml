@@ -176,40 +176,6 @@
                                 Click="BtnMonthlyGal_CLick"/>
                         </StackPanel>
 
-                        <!-- Idaron -->
-                        <Button 
-                            x:Name="BtnIdaron"
-                            HorizontalContentAlignment="Left"
-                            Padding="14,10" 
-                            FontSize="13" 
-                            Style="{StaticResource SidebarButton}"
-                            Click="BtnIdaron_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock 
-                                    Text="🌿  Idaron" 
-                                    VerticalAlignment="Center"/>
-                                <Viewbox Width="12" Height="12" Margin="6,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
-                                    <Viewbox.RenderTransform>
-                                        <RotateTransform x:Name="IdaronChevronRotation" Angle="180"/>
-                                    </Viewbox.RenderTransform>
-                                    <Path 
-                                        Data="M 0,3 L 6,9 L 12,3"
-                                        Stroke="#6B7280" 
-                                        StrokeThickness="1.5" 
-                                        StrokeLineJoin="Round"/>
-                                </Viewbox>
-                            </StackPanel>
-                        </Button>
-
-                        <StackPanel x:Name="IdaronSubmenu" Style="{StaticResource SubmenuPanel}">
-                            <Button
-                                Content="    Em desenvolvimento"
-                                HorizontalContentAlignment="Left"
-                                Padding="14,8"
-                                FontSize="12"
-                                Style="{StaticResource SidebarButton}"/>
-                        </StackPanel>
-
                         <!-- Vigiar -->
                         <Button
                             x:Name="BtnVigiar"

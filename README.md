@@ -50,7 +50,6 @@ A solução é dividida em 4 projetos:
 - Nenhum no momento
 
 **Pendente:**
-- Idaron
 - Vigipeq
 - Reconstrução do Power BI
 
@@ -80,7 +79,7 @@ Usuários finais não precisam instalar nada além do executável — build self
 
 ## Roadmap
 
-- Implementar Idaron, Vigipeq
+- Implementar Vigipeq
 - Reconstruir dashboards Power BI
 - Passe de polimento visual/UX
 

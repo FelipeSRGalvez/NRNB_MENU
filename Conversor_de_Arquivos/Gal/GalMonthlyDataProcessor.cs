@@ -116,9 +116,20 @@ namespace Conversor_de_Arquivos
             using var proc = System.Diagnostics.Process.Start(psi)
                 ?? throw new InvalidOperationException("Falha ao iniciar Python.");
 
-            string stdout = proc.StandardOutput.ReadToEnd();
-            string stderr = proc.StandardError.ReadToEnd();
-            proc.WaitForExit();
+            // Lê as duas saídas em paralelo (evita travamento por buffer cheio) e nunca espera para sempre.
+            var stdoutTask = proc.StandardOutput.ReadToEndAsync();
+            var stderrTask = proc.StandardError.ReadToEndAsync();
+
+            if (!proc.WaitForExit((int)ExtractorTimeout.TotalMilliseconds))
+            {
+                try { proc.Kill(entireProcessTree: true); } catch { /* já encerrou */ }
+                throw new TimeoutException(
+                    $"O extrator do PDF (gal_extract) não respondeu em {ExtractorTimeout.TotalMinutes:0} min e foi encerrado.");
+            }
+            proc.WaitForExit(); // descarrega a saída redirecionada após a espera com limite de tempo
+
+            string stdout = stdoutTask.GetAwaiter().GetResult();
+            string stderr = stderrTask.GetAwaiter().GetResult();
 
             if (proc.ExitCode != 0 || string.IsNullOrWhiteSpace(stdout))
                 throw new InvalidOperationException(
@@ -202,6 +213,8 @@ namespace Conversor_de_Arquivos
             return (months, records);
         }
 
+        private static readonly TimeSpan ExtractorTimeout = TimeSpan.FromMinutes(5);
+
         private static string FindPython()
         {
             foreach (var candidate in new[] { "py", "python", "python3" })
@@ -218,17 +231,21 @@ namespace Conversor_de_Arquivos
                             UseShellExecute        = false,
                             CreateNoWindow         = true,
                         })!;
-                    p.WaitForExit(3000);
+                    if (!p.WaitForExit(3000))
+                    {
+                        try { p.Kill(entireProcessTree: true); } catch { /* já encerrou */ }
+                        continue;
+                    }
                     if (p.ExitCode == 0) return candidate;
                 }
-                catch { /* try next */ }
+                catch { /* tenta o próximo */ }
             }
             throw new InvalidOperationException(
                 "Python não encontrado no PATH. Instale o Python e tente novamente.");
         }
 
-        // Score = matched_words² / canonical_word_count. Threshold ≥ 1.0 avoids false positives
-        // from orphaned single-word fragments (e.g. a stray "D'OESTE").
+        // Pontuação = palavras_encontradas² / total_de_palavras_do_nome. O limite ≥ 1.0 evita falsos
+        // positivos vindos de fragmentos soltos de uma palavra (ex.: um "D'OESTE" isolado).
         private static string CanonizeMunicipality(string parsedName)
         {
             if (string.IsNullOrWhiteSpace(parsedName)) return parsedName;
@@ -393,10 +410,10 @@ namespace Conversor_de_Arquivos
             await pkg.SaveAsAsync(new FileInfo(masterPath));
         }
 
-        // Normalizes municipality names:
-        //  • strips control chars
-        //  • collapses any run of apostrophe-like characters into a single ASCII apostrophe
-        //  • removes the space that sometimes appears before or after the apostrophe
+        // Normaliza nomes de municípios:
+        //  • remove caracteres de controle
+        //  • junta qualquer sequência de caracteres parecidos com apóstrofo em um único apóstrofo ASCII
+        //  • remove o espaço que às vezes aparece antes ou depois do apóstrofo
         private static string NormalizeMunicipalityName(string name)
         {
             var sb       = new StringBuilder(name.Length);

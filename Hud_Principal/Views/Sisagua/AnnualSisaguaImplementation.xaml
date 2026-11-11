@@ -28,7 +28,7 @@
 
                 <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
 
-                <!-- Logo -->
+                <!-- Logotipo -->
                 <Image Width="140" Height="140"
                        Margin="0,0,0,24"
                        HorizontalAlignment="Left"
@@ -61,7 +61,7 @@
                              HorizontalAlignment="Left"/>
                 </StackPanel>
 
-                <!-- Action -->
+                <!-- Ação -->
                 <Button x:Name="BtnStartImplementation"
                         Content="Iniciar Processo"
                         HorizontalAlignment="Left"

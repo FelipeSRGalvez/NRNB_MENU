@@ -18,7 +18,7 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="48,24,48,40">
 
-                <!-- Header -->
+                <!-- Cabeçalho -->
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="GAL — Sistema Gerenciador de Ambiente Laboratorial"
@@ -32,7 +32,7 @@
 
                 <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
 
-                <!-- Steps -->
+                <!-- Etapas -->
                 <TextBlock Text="O SISTEMA IRÁ:"
                            FontSize="11" Foreground="#555555"
                            FontWeight="SemiBold"
@@ -147,7 +147,7 @@
                              Text="11"/>
                 </StackPanel>
 
-                <!-- Action -->
+                <!-- Ação -->
                 <TextBlock x:Name="TxtStatus"
                            Foreground="#666666" FontSize="12"
                            Margin="0,0,0,10"
