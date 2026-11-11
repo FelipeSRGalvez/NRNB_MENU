@@ -311,7 +311,7 @@ namespace Conversor_de_Arquivos
                 };
             }
 
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            ExcelLicense.Ensure();
 
             var pdfMonthYear = new HashSet<(int Year, string Month)>(
                 months.Select(m => (m.Year, m.Name)));

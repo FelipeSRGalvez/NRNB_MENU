@@ -89,7 +89,7 @@ namespace Conversor_de_Arquivos
                 }
 
                 progress?.Report("Atualizando planilha mestre anual...");
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                ExcelLicense.Ensure();
 
                 ExcelPackage package;
                 ExcelWorksheet ws;

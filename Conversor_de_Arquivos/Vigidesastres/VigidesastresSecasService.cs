@@ -3,7 +3,7 @@ using System.Net;
 namespace Conversor_de_Arquivos.Vigidesastres
 {
     // Baixa e extrai os shapefiles mensais públicos do Monitor de Secas (ANA).
-    // Estrutura gerada em PastaSecas:
+    // Estrutura gerada na pasta de brutos (PastaArquivosBrutosSecas):
     //   {ano}\{mes}{ano}.zip    -> ZIP original
     //   {ano}\{mes}{ano}\       -> conteúdo extraído
     public class VigidesastresSecasService
@@ -22,7 +22,7 @@ namespace Conversor_de_Arquivos.Vigidesastres
         private readonly SecasDataProcessor _processor = new();
 
         public async Task<SecasRunSummary> ExecuteAsync(
-            string droughtFolder,
+            string rawFilesFolder,
             string baseUrl,
             List<int> years,
             IProgress<string> progress)
@@ -41,7 +41,7 @@ namespace Conversor_de_Arquivos.Vigidesastres
 
             foreach (var month in months)
             {
-                var result = await ProcessMonthAsync(month, droughtFolder, baseUrl, progress);
+                var result = await ProcessMonthAsync(month, rawFilesFolder, baseUrl, progress);
                 summary.Results.Add(result);
 
                 if (result.Status is SecasMonthStatus.Downloaded or SecasMonthStatus.NotPublished)
@@ -54,9 +54,9 @@ namespace Conversor_de_Arquivos.Vigidesastres
         }
 
         private async Task<SecasMonthResult> ProcessMonthAsync(
-            SecasMonth month, string droughtFolder, string baseUrl, IProgress<string> progress)
+            SecasMonth month, string rawFilesFolder, string baseUrl, IProgress<string> progress)
         {
-            string yearDir    = Path.Combine(droughtFolder, month.Year.ToString());
+            string yearDir    = Path.Combine(rawFilesFolder, month.Year.ToString());
             string zipPath    = Path.Combine(yearDir, month.FileStem + ".zip");
             string extractDir = Path.Combine(yearDir, month.FileStem);
 

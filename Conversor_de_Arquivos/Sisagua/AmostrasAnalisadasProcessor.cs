@@ -210,7 +210,7 @@ namespace Conversor_de_Arquivos
                 }
 
                 progress?.Report($"[{year}] Atualizando planilha mestre de amostras analisadas...");
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                ExcelLicense.Ensure();
 
                 ExcelPackage package;
                 ExcelWorksheet ws;

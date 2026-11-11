@@ -180,28 +180,6 @@
                 </StackPanel>
 
                 <Button
-                    x:Name="BtnSisamSection"
-                    Content="🌫 Sisam"
-                    HorizontalAlignment="Left"
-                    FontSize="25"
-                    Padding="14,10"
-                    Style="{StaticResource SidebarButton}"
-                    Click="BtnSisamSection_Click"/>
-
-                <StackPanel x:Name="SisamSection" Style="{StaticResource SubmenuPanel}" Margin="14,10,0,0">
-
-                    <TextBlock Text="Pasta Arquivo Mestre" Foreground="#9CA3A0" Margin="0,8,0,4"/>
-                    <DockPanel LastChildFill="True">
-                        <Button Content="📁" DockPanel.Dock="Right"
-                                Style="{StaticResource FolderButton}"
-                                Click="BtnSisamMestreFolder_Click"/>
-                        <TextBox x:Name="TxtSisamMestreFolder"
-                                 Style="{StaticResource FormField}" IsReadOnly="True"/>
-                    </DockPanel>
-
-                </StackPanel>
-
-                <Button
                     x:Name="BtnVigiarSection"
                     Content="🔥 Vigiar"
                     HorizontalAlignment="Left"
@@ -230,15 +208,6 @@
                                  Style="{StaticResource FormField}" IsReadOnly="True"/>
                     </DockPanel>
 
-                    <TextBlock Text="Pasta IQAr" Foreground="#9CA3A0" Margin="0,8,0,4"/>
-                    <DockPanel LastChildFill="True">
-                        <Button Content="📁" DockPanel.Dock="Right"
-                                Style="{StaticResource FolderButton}"
-                                Click="BtnVigiarIqArFolder_Click"/>
-                        <TextBox x:Name="TxtVigiarIqArFolder"
-                                 Style="{StaticResource FormField}" IsReadOnly="True"/>
-                    </DockPanel>
-
                 </StackPanel>
 
                 <Button
@@ -252,12 +221,30 @@
 
                 <StackPanel x:Name="VigidesastresSection" Style="{StaticResource SubmenuPanel}" Margin="14,10,0,0">
 
-                    <TextBlock Text="Pasta Secas" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <TextBlock Text="Pasta Arquivos Brutos Secas (ZIPs e mapas extraídos)" Foreground="#9CA3A0" Margin="0,8,0,4"/>
                     <DockPanel LastChildFill="True">
                         <Button Content="📁" DockPanel.Dock="Right"
                                 Style="{StaticResource FolderButton}"
-                                Click="BtnVigidesastresDroughtFolder_Click"/>
-                        <TextBox x:Name="TxtVigidesastresDroughtFolder"
+                                Click="BtnVigidesastresRawFolder_Click"/>
+                        <TextBox x:Name="TxtVigidesastresRawFolder"
+                                 Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
+                    <TextBlock Text="Pasta Secas Mestre (SECAS_MESTRE.xlsx)" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button Content="📁" DockPanel.Dock="Right"
+                                Style="{StaticResource FolderButton}"
+                                Click="BtnVigidesastresMasterFolder_Click"/>
+                        <TextBox x:Name="TxtVigidesastresMasterFolder"
+                                 Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
+                    <TextBlock Text="Arquivo Malha Municipal (TopoJSON/GeoJSON)" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button Content="📄" DockPanel.Dock="Right"
+                                Style="{StaticResource FolderButton}"
+                                Click="BtnVigidesastresMeshFile_Click"/>
+                        <TextBox x:Name="TxtVigidesastresMeshFile"
                                  Style="{StaticResource FormField}" IsReadOnly="True"/>
                     </DockPanel>
 

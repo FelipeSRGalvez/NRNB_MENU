@@ -42,24 +42,26 @@
                            Foreground="#cccccc"
                            FontSize="13"
                            Margin="0,0,0,8">
-                    Baixa os mapas mensais do Monitor de Secas (ANA) em formato shapefile e
-                    extrai cada mês em uma pasta própria dentro da Pasta Secas, mantendo
-                    também o ZIP original.
+                    Baixa os mapas mensais do Monitor de Secas (ANA) em formato shapefile para a
+                    pasta de arquivos brutos e, em seguida, cruza os mapas com a malha municipal de
+                    Rondônia, gravando SECAS_MESTRE.xlsx na pasta do mestre (% da área de cada
+                    município por categoria, categoria máxima e predominante) para o Power BI.
                 </TextBlock>
 
                 <TextBlock TextWrapping="Wrap"
                            Foreground="#666666"
                            FontSize="12"
                            Margin="0,0,0,32">
-                    Meses já baixados são pulados. Meses ainda não publicados pela ANA
-                    são ignorados e baixados numa próxima execução.
+                    Meses já baixados e já gravados são pulados. Meses ainda não publicados pela ANA
+                    ficam para uma próxima execução. O processamento só considera a partir de
+                    agosto/2022, quando o mapa passou a cobrir Rondônia.
                 </TextBlock>
 
                 <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
 
                 <!-- Year selection -->
                 <StackPanel Margin="0,0,0,24">
-                    <TextBlock Text="Anos a baixar" Foreground="#999999" FontSize="12" Margin="0,0,0,6"/>
+                    <TextBlock Text="Anos" Foreground="#999999" FontSize="12" Margin="0,0,0,6"/>
                     <TextBlock Text="Clique para selecionar um ou mais anos."
                                FontSize="11" Foreground="#555555" Margin="0,0,0,8"/>
                     <ListBox x:Name="ListBoxAnos"
@@ -75,16 +77,17 @@
                 </StackPanel>
 
                 <!-- Action -->
-                <Button x:Name="BtnStart"
-                        Content="Iniciar download"
+                <Button x:Name="BtnRun"
+                        Content="Coletar e Processar"
                         HorizontalAlignment="Left"
                         Style="{StaticResource SidebarButton}"
                         Padding="16,8"
                         Margin="0,0,0,16"
-                        Click="BtnStart_Click"/>
+                        Click="BtnRun_Click"/>
 
                 <!-- Summary -->
                 <TextBlock x:Name="TxtSummary"
+                           TextWrapping="Wrap"
                            Foreground="#1D9E75"
                            FontSize="13"
                            Margin="0,0,0,8"/>

@@ -8,6 +8,9 @@
 		<PackageReference Include="ExcelDataReader" Version="3.9.0" />
 		<PackageReference Include="ExcelDataReader.DataSet" Version="3.9.0" />
 		<PackageReference Include="EPPlus" Version="8.7.2" />
+		<PackageReference Include="NetTopologySuite" Version="2.6.0" />
+		<PackageReference Include="NetTopologySuite.IO.Esri.Shapefile" Version="1.2.0" />
 		<PackageReference Include="PdfPig" Version="0.1.16" />
+		<PackageReference Include="ProjNET" Version="2.1.0" />
 	</ItemGroup>
 </Project>

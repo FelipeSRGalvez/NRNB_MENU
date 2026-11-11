@@ -9,7 +9,7 @@ namespace Hud_Principal.Views
     public partial class VigidesastresSecasView : BaseView
     {
         // A lista começa em 2021. Obs.: o mapa só cobre Rondônia a partir de ago/2022;
-        // 2021 e jan–jul/2022 são baixados, mas não contêm Rondônia.
+        // 2021 e jan–jul/2022 são baixados, mas não contêm Rondônia (o processamento os pula).
         private const int FirstYear = 2021;
 
         public VigidesastresSecasView()
@@ -20,7 +20,8 @@ namespace Hud_Principal.Views
                 ListBoxAnos.Items.Add(y);
         }
 
-        private async void BtnStart_Click(object sender, RoutedEventArgs e)
+        // Coleta (download/extração) e, em seguida, processamento para SECAS_MESTRE.xlsx.
+        private async void BtnRun_Click(object sender, RoutedEventArgs e)
         {
             var selectedYears = ListBoxAnos.SelectedItems
                 .Cast<int>()
@@ -44,10 +45,19 @@ namespace Hud_Principal.Views
                 return;
             }
 
+            var cfg = config.Vigidesastres;
             var errors = PathVerifier.Verify(
             [
-                (config.Vigidesastres.DroughtFolder, "Pasta Secas não configurada.")
+                (cfg.RawFilesFolder,
+                 "Pasta de arquivos brutos das secas não configurada (Configurações → Vigidesastres)."),
+                (cfg.MasterFolder,
+                 "Pasta do SECAS_MESTRE não configurada. Configure em Configurações → Vigidesastres → Pasta Secas Mestre.")
             ]);
+            errors.AddRange(PathVerifier.VerifyFiles(
+            [
+                (cfg.MunicipalMeshFile,
+                 "Arquivo da malha municipal não configurado (Configurações → Vigidesastres).")
+            ]));
 
             if (errors.Count > 0)
             {
@@ -55,7 +65,7 @@ namespace Hud_Principal.Views
                 return;
             }
 
-            BtnStart.IsEnabled = false;
+            BtnRun.IsEnabled = false;
             TxtStatus.Text = string.Empty;
             TxtSummary.Text = string.Empty;
 
@@ -70,14 +80,24 @@ namespace Hud_Principal.Views
 
             try
             {
-                var summary = await new VigidesastresSecasService().ExecuteAsync(
-                    config.Vigidesastres.DroughtFolder,
+                var result = await new VigidesastresSecasPipeline().ExecuteAsync(
+                    cfg.RawFilesFolder,
+                    cfg.MasterFolder,
+                    cfg.MunicipalMeshFile,
                     ConfigurationVigidesastres.UrlBaseSecas,
                     selectedYears,
                     progress);
 
-                TxtSummary.Text = $"Baixados: {summary.Downloaded}   ·   Pulados: {summary.Skipped}   ·   " +
-                                  $"Não publicados: {summary.NotPublished}   ·   Erros: {summary.Errors}";
+                var c = result.Collection;
+                string coleta = $"Coleta — Baixados: {c.Downloaded}   ·   Pulados: {c.Skipped}   ·   " +
+                                $"Não publicados: {c.NotPublished}   ·   Erros: {c.Errors}";
+
+                string processamento = result.Processing is { } p
+                    ? $"Processamento — Processados: {p.Processed}   ·   Já na planilha: {p.AlreadyInMaster}   ·   " +
+                      $"Sem cobertura de RO: {p.NoCoverage}   ·   Não baixados: {p.NotDownloaded}   ·   Erros: {p.Errors}"
+                    : $"Processamento — não executado: {result.ProcessingSkippedReason}";
+
+                TxtSummary.Text = coleta + "\n" + processamento;
             }
             catch (Exception ex)
             {
@@ -87,7 +107,7 @@ namespace Hud_Principal.Views
             }
             finally
             {
-                BtnStart.IsEnabled = true;
+                BtnRun.IsEnabled = true;
             }
         }
 

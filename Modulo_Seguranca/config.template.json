@@ -12,12 +12,13 @@
 
   "Vigiar": {
     "PastaArquivosBrutos": "",
-    "PastaQueimadas": "",
-    "PastaIqAr": ""
+    "PastaQueimadas": ""
   },
 
   "Vigidesastres": {
-    "PastaSecas": ""
+    "PastaArquivosBrutosSecas": "",
+    "PastaSecasMestre": "",
+    "ArquivoMalhaMunicipal": ""
   },
 
   "Gal": {

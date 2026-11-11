@@ -15,7 +15,7 @@ namespace Hud_Principal
         {
             InitializeComponent();
             // Lista com os ids dos paineis
-            _panels = [HomePanel, ConfigPanel, MonthlySisaguaPanel, AnnualSisaguaPanel, AnnualSisaguaImplementationPanel, ParameterSisaguaPanel, MonthlyGalPanel, VigiarFocosCalorPanel, VigiarIqArPanel, SisamPrevisaoPanel, VigidesastresSecasPanel];
+            _panels = [HomePanel, ConfigPanel, MonthlySisaguaPanel, AnnualSisaguaPanel, AnnualSisaguaImplementationPanel, ParameterSisaguaPanel, MonthlyGalPanel, VigiarFocosCalorPanel, VigidesastresSecasPanel];
 
             // Puxa a função para o view para voltar ao HomeView
             ConfigPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
@@ -25,8 +25,6 @@ namespace Hud_Principal
             ParameterSisaguaPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
             MonthlyGalPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
             VigiarFocosCalorPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
-            VigiarIqArPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
-            SisamPrevisaoPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
             VigidesastresSecasPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
         }
 
@@ -114,15 +112,6 @@ namespace Hud_Principal
 
         private void BtnFocosCalor_Click(object sender, RoutedEventArgs e)
             => ShowPanel(VigiarFocosCalorPanel);
-
-        private void BtnIqAr_Click(object sender, RoutedEventArgs e)
-            => ShowPanel(VigiarIqArPanel);
-
-        private void BtnSisam_Click(object sender, RoutedEventArgs e)
-            => ToggleSubmenu(SisamSubmenu, SisamChevronRotation);
-
-        private void BtnSisamPrevisao_Click(object sender, RoutedEventArgs e)
-            => ShowPanel(SisamPrevisaoPanel);
 
         private void BtnVigidesastres_Click(object sender, RoutedEventArgs e)
             => ToggleSubmenu(VigidesastresSubmenu, VigidesastresChevronRotation);

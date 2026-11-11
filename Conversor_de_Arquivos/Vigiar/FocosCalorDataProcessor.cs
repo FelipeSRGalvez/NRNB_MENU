@@ -10,7 +10,7 @@ namespace Conversor_de_Arquivos
         {
             if (!File.Exists(masterPath)) return null;
 
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            ExcelLicense.Ensure();
             using var pkg = new ExcelPackage(new FileInfo(masterPath));
             if (pkg.Workbook.Worksheets.Count == 0) return null;
 
@@ -39,7 +39,7 @@ namespace Conversor_de_Arquivos
 
         public async Task AppendWeekAsync(WeekHotspots weekData, string masterPath, IProgress<string>? progress = null)
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            ExcelLicense.Ensure();
 
             var fileInfo = new FileInfo(masterPath);
             fileInfo.Directory?.Create();

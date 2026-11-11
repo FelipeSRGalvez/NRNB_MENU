@@ -32,10 +32,8 @@ A solução é dividida em 4 projetos:
 ## Sistemas-alvo
 
 - **Sisagua** - qualidade da água
-- **Observatório de Clima e Saúde** - qualidade do ar
 - **BdQueimadas** - focos de calor
 - **GAL** - laboratório
-- **SISAM** - previsão de qualidade do ar (INPE)
 - **Monitor de Secas** - mapas mensais de seca (ANA)
 
 ---
@@ -45,17 +43,14 @@ A solução é dividida em 4 projetos:
 **Concluído:**
 - Vigiagua - Diretriz (mensal e anual)
 - Vigiar - Focos de Calor
-- Vigiar - IQAr
 - GAL - Relatório de amostras
-- Vigidesastres - Monitor de Secas (download e extração mensal dos shapefiles da ANA)
+- Vigidesastres - Monitor de Secas (download mensal dos shapefiles da ANA e processamento por município para Power BI)
 
 **Em andamento:**
-- SISAM (próximo módulo planejado)
-- Testes ao vivo do IQAr
+- Nenhum no momento
 
 **Pendente:**
 - Idaron
-- Vigidesastres - Processamento do Monitor de Secas (cruzamento com malha municipal, planilha mestre)
 - Vigipeq
 - Reconstrução do Power BI
 
@@ -67,6 +62,7 @@ A solução é dividida em 4 projetos:
 - WPF
 - Microsoft Playwright
 - EPPlus (Excel)
+- NetTopologySuite + ProjNET (geoprocessamento: shapefile, TopoJSON/GeoJSON, áreas)
 - UglyToad.PdfPig (PDF)
 - pdfplumber (PDF)
 - Python/ddddocr (captcha, compilado via PyInstaller)
@@ -84,9 +80,7 @@ Usuários finais não precisam instalar nada além do executável — build self
 
 ## Roadmap
 
-- Finalizar módulo SISAM
 - Implementar Idaron, Vigipeq
-- Processamento dos dados do Monitor de Secas (Vigidesastres)
 - Reconstruir dashboards Power BI
 - Passe de polimento visual/UX
 

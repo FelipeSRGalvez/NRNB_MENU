@@ -36,11 +36,10 @@ namespace Hud_Principal.Views
 
                 TxtVigiarWildfiresFolder.Text = config.Vigiar.WildfiresFolder;
                 TxtVigiarRawFolder.Text = config.Vigiar.RawFilesFolder;
-                TxtVigiarIqArFolder.Text = config.Vigiar.IqArFolder;
 
-                TxtSisamMestreFolder.Text = config.Sisam.PastaSisamMestre;
-
-                TxtVigidesastresDroughtFolder.Text = config.Vigidesastres.DroughtFolder;
+                TxtVigidesastresRawFolder.Text = config.Vigidesastres.RawFilesFolder;
+                TxtVigidesastresMasterFolder.Text = config.Vigidesastres.MasterFolder;
+                TxtVigidesastresMeshFile.Text = config.Vigidesastres.MunicipalMeshFile;
 
                 TxtGalUsername.Text = config.Gal.Username;
                 TxtGalPassword.Password = config.Gal.Password;
@@ -77,11 +76,10 @@ namespace Hud_Principal.Views
 
             config.Vigiar.WildfiresFolder = TxtVigiarWildfiresFolder.Text;
             config.Vigiar.RawFilesFolder = TxtVigiarRawFolder.Text;
-            config.Vigiar.IqArFolder = TxtVigiarIqArFolder.Text;
 
-            config.Sisam.PastaSisamMestre = TxtSisamMestreFolder.Text;
-
-            config.Vigidesastres.DroughtFolder = TxtVigidesastresDroughtFolder.Text;
+            config.Vigidesastres.RawFilesFolder = TxtVigidesastresRawFolder.Text;
+            config.Vigidesastres.MasterFolder = TxtVigidesastresMasterFolder.Text;
+            config.Vigidesastres.MunicipalMeshFile = TxtVigidesastresMeshFile.Text;
 
             config.Gal.Username = TxtGalUsername.Text;
             config.Gal.Password = TxtGalPassword.Password;
@@ -100,12 +98,6 @@ namespace Hud_Principal.Views
         private void BtnGalSection_Click(object sender, RoutedEventArgs e)
             => ToggleSection(GalSection);
 
-        private void BtnSisamSection_Click(object sender, RoutedEventArgs e)
-            => ToggleSection(SisamSection);
-
-        private void BtnSisamMestreFolder_Click(object sender, RoutedEventArgs e)
-            => SelectFolder(TxtSisamMestreFolder);
-
         private void BtnVigiarSection_Click(object sender, RoutedEventArgs e)
             => ToggleSection(VigiarSection);
 
@@ -115,14 +107,27 @@ namespace Hud_Principal.Views
         private void BtnVigiarRawFolder_Click(object sender, RoutedEventArgs e)
             => SelectFolder(TxtVigiarRawFolder);
 
-        private void BtnVigiarIqArFolder_Click(object sender, RoutedEventArgs e)
-            => SelectFolder(TxtVigiarIqArFolder);
-
         private void BtnVigidesastresSection_Click(object sender, RoutedEventArgs e)
             => ToggleSection(VigidesastresSection);
 
-        private void BtnVigidesastresDroughtFolder_Click(object sender, RoutedEventArgs e)
-            => SelectFolder(TxtVigidesastresDroughtFolder);
+        private void BtnVigidesastresRawFolder_Click(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtVigidesastresRawFolder);
+
+        private void BtnVigidesastresMasterFolder_Click(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtVigidesastresMasterFolder);
+
+        private void BtnVigidesastresMeshFile_Click(object sender, RoutedEventArgs e)
+            => SelectFile(TxtVigidesastresMeshFile,
+                "Malha municipal (*.json;*.topojson;*.geojson)|*.json;*.topojson;*.geojson|Todos os arquivos (*.*)|*.*");
+
+        private static void SelectFile(TextBox field, string filter)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog { Filter = filter, CheckFileExists = true };
+            if (!string.IsNullOrWhiteSpace(field.Text) && Directory.Exists(Path.GetDirectoryName(field.Text)))
+                dialog.InitialDirectory = Path.GetDirectoryName(field.Text);
+            if (dialog.ShowDialog() == true)
+                field.Text = dialog.FileName;
+        }
 
         private void ToggleSection(StackPanel section)
         {

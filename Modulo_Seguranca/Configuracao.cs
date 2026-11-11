@@ -33,7 +33,6 @@ namespace Modulo_Seguranca
 
     public class ConfigurationVigiar
     {
-        public const string UrlIqAr = "https://shiny.icict.fiocruz.br/alertarsaude/";
         public const string UrlWildfiresDatabase = "https://terrabrasilis.dpi.inpe.br/queimadas/bdqueimadas/#exportar-dados";
 
         [JsonPropertyName("PastaArquivosBrutos")]
@@ -41,9 +40,6 @@ namespace Modulo_Seguranca
 
         [JsonPropertyName("PastaQueimadas")]
         public string WildfiresFolder { get; set; } = string.Empty;
-
-        [JsonPropertyName("PastaIqAr")]
-        public string IqArFolder { get; set; } = string.Empty;
     }
 
     public class ConfigurationGal
@@ -69,22 +65,41 @@ namespace Modulo_Seguranca
         public string GalMonthlyFolder { get; set; } = string.Empty;
     }
 
-    public class ConfigurationSisam
-    {
-        [JsonPropertyName("PastaArquivosBrutosSisam")]
-        public string RawFilesFolder { get; set; } = string.Empty;
-
-        [JsonPropertyName("PastaSisamMestre")]
-        public string PastaSisamMestre { get; set; } = string.Empty;
-    }
-
     public class ConfigurationVigidesastres
     {
         // Shapefiles mensais públicos do Monitor de Secas (ANA). Arquivo: {mes}{ano}.zip
         public const string UrlBaseSecas = "https://ana-monitor-secas-files.s3.sa-east-1.amazonaws.com/uploads/mapas/";
 
+        private string _rawFilesFolder = string.Empty;
+        private string? _legacyDroughtFolder;
+
+        // ZIPs e pastas extraídas do Monitor de Secas, estrutura {ano}\{mes}{ano}.
+        // Compatibilidade: se vazia, usa o valor da chave antiga "PastaSecas" (só leitura).
+        [JsonPropertyName("PastaArquivosBrutosSecas")]
+        public string RawFilesFolder
+        {
+            get => string.IsNullOrWhiteSpace(_rawFilesFolder) ? _legacyDroughtFolder ?? string.Empty : _rawFilesFolder;
+            set => _rawFilesFolder = value ?? string.Empty;
+        }
+
+        // Onde fica o SECAS_MESTRE.xlsx. Sem fallback: precisa ser configurada.
+        [JsonPropertyName("PastaSecasMestre")]
+        public string MasterFolder { get; set; } = string.Empty;
+
+        // Chave antiga (uma pasta só para tudo). Lida de config.json antigos, nunca gravada:
+        // ao salvar, o valor já aparece em PastaArquivosBrutosSecas.
         [JsonPropertyName("PastaSecas")]
-        public string DroughtFolder { get; set; } = string.Empty;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? LegacyDroughtFolder
+        {
+            get => null;
+            set => _legacyDroughtFolder = value;
+        }
+
+        // Caminho completo do TopoJSON/GeoJSON dos municípios de RO (campos CD_MUN e NM_MUN).
+        // Fica em pasta compartilhada; não é embutido nem baixado pelo programa.
+        [JsonPropertyName("ArquivoMalhaMunicipal")]
+        public string MunicipalMeshFile { get; set; } = string.Empty;
     }
 
     public class Configuration
@@ -95,7 +110,6 @@ namespace Modulo_Seguranca
         public ConfigurationVigiagua Vigiagua { get; set; } = new ConfigurationVigiagua();
         public ConfigurationGal Gal { get; set; } = new ConfigurationGal();
         public ConfigurationVigiar Vigiar { get; set; } = new ConfigurationVigiar();
-        public ConfigurationSisam Sisam { get; set; } = new ConfigurationSisam();
         public ConfigurationVigidesastres Vigidesastres { get; set; } = new ConfigurationVigidesastres();
     }
 }
