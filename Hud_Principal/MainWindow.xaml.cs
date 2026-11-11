@@ -15,7 +15,7 @@ namespace Hud_Principal
         {
             InitializeComponent();
             // Lista com os ids dos paineis
-            _panels = [HomePanel, ConfigPanel, MonthlySisaguaPanel, AnnualSisaguaPanel, AnnualSisaguaImplementationPanel, ParameterSisaguaPanel, MonthlyGalPanel, VigiarFocosCalorPanel, VigiarIqArPanel, SisamPrevisaoPanel];
+            _panels = [HomePanel, ConfigPanel, MonthlySisaguaPanel, AnnualSisaguaPanel, AnnualSisaguaImplementationPanel, ParameterSisaguaPanel, MonthlyGalPanel, VigiarFocosCalorPanel, VigiarIqArPanel, SisamPrevisaoPanel, VigidesastresSecasPanel];
 
             // Puxa a função para o view para voltar ao HomeView
             ConfigPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
@@ -27,6 +27,7 @@ namespace Hud_Principal
             VigiarFocosCalorPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
             VigiarIqArPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
             SisamPrevisaoPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
+            VigidesastresSecasPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
         }
 
         // Função que dará animação e delay de abertura e fechamento de submenu (sidepanel) para dar mais fluidez
@@ -122,5 +123,11 @@ namespace Hud_Principal
 
         private void BtnSisamPrevisao_Click(object sender, RoutedEventArgs e)
             => ShowPanel(SisamPrevisaoPanel);
+
+        private void BtnVigidesastres_Click(object sender, RoutedEventArgs e)
+            => ToggleSubmenu(VigidesastresSubmenu, VigidesastresChevronRotation);
+
+        private void BtnVigidesastresSecas_Click(object sender, RoutedEventArgs e)
+            => ShowPanel(VigidesastresSecasPanel);
     }
 }

@@ -287,6 +287,41 @@
                                 Click="BtnIqAr_Click"/>
                         </StackPanel>
 
+                        <!-- Vigidesastres -->
+                        <Button
+                            x:Name="BtnVigidesastres"
+                            HorizontalContentAlignment="Left"
+                            Padding="14,10"
+                            FontSize="13"
+                            Style="{StaticResource SidebarButton}"
+                            Click="BtnVigidesastres_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock
+                                    Text="🏜  Vigidesastres"
+                                    VerticalAlignment="Center"/>
+                                <Viewbox Width="12" Height="12" Margin="6,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                    <Viewbox.RenderTransform>
+                                        <RotateTransform x:Name="VigidesastresChevronRotation" Angle="180"/>
+                                    </Viewbox.RenderTransform>
+                                    <Path
+                                        Data="M 0,3 L 6,9 L 12,3"
+                                        Stroke="#6B7280"
+                                        StrokeThickness="1.5"
+                                        StrokeLineJoin="Round"/>
+                                </Viewbox>
+                            </StackPanel>
+                        </Button>
+
+                        <StackPanel x:Name="VigidesastresSubmenu" Style="{StaticResource SubmenuPanel}">
+                            <Button
+                                Content="    Monitor de Secas"
+                                HorizontalContentAlignment="Left"
+                                Padding="14,8"
+                                FontSize="12"
+                                Style="{StaticResource SidebarButton}"
+                                Click="BtnVigidesastresSecas_Click"/>
+                        </StackPanel>
+
                     </StackPanel>
                 </ScrollViewer>
             </DockPanel>
@@ -347,6 +382,12 @@
 
         <views:SisamPrevisaoView
             x:Name="SisamPrevisaoPanel"
+            Grid.Column="1"
+            Grid.Row="1"
+            Visibility="Collapsed"/>
+
+        <views:VigidesastresSecasView
+            x:Name="VigidesastresSecasPanel"
             Grid.Column="1"
             Grid.Row="1"
             Visibility="Collapsed"/>

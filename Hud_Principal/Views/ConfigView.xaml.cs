@@ -40,6 +40,8 @@ namespace Hud_Principal.Views
 
                 TxtSisamMestreFolder.Text = config.Sisam.PastaSisamMestre;
 
+                TxtVigidesastresDroughtFolder.Text = config.Vigidesastres.DroughtFolder;
+
                 TxtGalUsername.Text = config.Gal.Username;
                 TxtGalPassword.Password = config.Gal.Password;
                 TxtGalModule.Text = config.Gal.Module;
@@ -79,6 +81,8 @@ namespace Hud_Principal.Views
 
             config.Sisam.PastaSisamMestre = TxtSisamMestreFolder.Text;
 
+            config.Vigidesastres.DroughtFolder = TxtVigidesastresDroughtFolder.Text;
+
             config.Gal.Username = TxtGalUsername.Text;
             config.Gal.Password = TxtGalPassword.Password;
             config.Gal.Module = TxtGalModule.Text;
@@ -113,6 +117,12 @@ namespace Hud_Principal.Views
 
         private void BtnVigiarIqArFolder_Click(object sender, RoutedEventArgs e)
             => SelectFolder(TxtVigiarIqArFolder);
+
+        private void BtnVigidesastresSection_Click(object sender, RoutedEventArgs e)
+            => ToggleSection(VigidesastresSection);
+
+        private void BtnVigidesastresDroughtFolder_Click(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtVigidesastresDroughtFolder);
 
         private void ToggleSection(StackPanel section)
         {

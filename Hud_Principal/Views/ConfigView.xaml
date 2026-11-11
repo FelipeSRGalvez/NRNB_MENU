@@ -241,6 +241,28 @@
 
                 </StackPanel>
 
+                <Button
+                    x:Name="BtnVigidesastresSection"
+                    Content="🏜 Vigidesastres"
+                    HorizontalAlignment="Left"
+                    FontSize="25"
+                    Padding="14,10"
+                    Style="{StaticResource SidebarButton}"
+                    Click="BtnVigidesastresSection_Click"/>
+
+                <StackPanel x:Name="VigidesastresSection" Style="{StaticResource SubmenuPanel}" Margin="14,10,0,0">
+
+                    <TextBlock Text="Pasta Secas" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button Content="📁" DockPanel.Dock="Right"
+                                Style="{StaticResource FolderButton}"
+                                Click="BtnVigidesastresDroughtFolder_Click"/>
+                        <TextBox x:Name="TxtVigidesastresDroughtFolder"
+                                 Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
+                </StackPanel>
+
             </StackPanel>
         </ScrollViewer>
 

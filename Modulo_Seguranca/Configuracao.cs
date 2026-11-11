@@ -78,6 +78,15 @@ namespace Modulo_Seguranca
         public string PastaSisamMestre { get; set; } = string.Empty;
     }
 
+    public class ConfigurationVigidesastres
+    {
+        // Shapefiles mensais públicos do Monitor de Secas (ANA). Arquivo: {mes}{ano}.zip
+        public const string UrlBaseSecas = "https://ana-monitor-secas-files.s3.sa-east-1.amazonaws.com/uploads/mapas/";
+
+        [JsonPropertyName("PastaSecas")]
+        public string DroughtFolder { get; set; } = string.Empty;
+    }
+
     public class Configuration
     {
         [JsonPropertyName("ExtensoesBloqueadas")]
@@ -87,5 +96,6 @@ namespace Modulo_Seguranca
         public ConfigurationGal Gal { get; set; } = new ConfigurationGal();
         public ConfigurationVigiar Vigiar { get; set; } = new ConfigurationVigiar();
         public ConfigurationSisam Sisam { get; set; } = new ConfigurationSisam();
+        public ConfigurationVigidesastres Vigidesastres { get; set; } = new ConfigurationVigidesastres();
     }
 }

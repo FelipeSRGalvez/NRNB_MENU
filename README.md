@@ -36,6 +36,7 @@ A solução é dividida em 4 projetos:
 - **BdQueimadas** - focos de calor
 - **GAL** - laboratório
 - **SISAM** - previsão de qualidade do ar (INPE)
+- **Monitor de Secas** - mapas mensais de seca (ANA)
 
 ---
 
@@ -46,6 +47,7 @@ A solução é dividida em 4 projetos:
 - Vigiar - Focos de Calor
 - Vigiar - IQAr
 - GAL - Relatório de amostras
+- Vigidesastres - Monitor de Secas (download e extração mensal dos shapefiles da ANA)
 
 **Em andamento:**
 - SISAM (próximo módulo planejado)
@@ -53,7 +55,7 @@ A solução é dividida em 4 projetos:
 
 **Pendente:**
 - Idaron
-- Vigidesastres
+- Vigidesastres - Processamento do Monitor de Secas (cruzamento com malha municipal, planilha mestre)
 - Vigipeq
 - Reconstrução do Power BI
 
@@ -83,7 +85,8 @@ Usuários finais não precisam instalar nada além do executável — build self
 ## Roadmap
 
 - Finalizar módulo SISAM
-- Implementar Idaron, Vigidesastres, Vigipeq
+- Implementar Idaron, Vigipeq
+- Processamento dos dados do Monitor de Secas (Vigidesastres)
 - Reconstruir dashboards Power BI
 - Passe de polimento visual/UX
 

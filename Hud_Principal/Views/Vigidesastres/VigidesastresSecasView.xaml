@@ -1,0 +1,114 @@
+<views:BaseView x:Class="Hud_Principal.Views.VigidesastresSecasView"
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:views="clr-namespace:Hud_Principal.Views"
+                Background="#0d0f0e">
+
+    <DockPanel>
+
+        <Button DockPanel.Dock="Top"
+                Content="← Voltar"
+                HorizontalAlignment="Left"
+                Style="{StaticResource SidebarButton}"
+                FontSize="13"
+                Padding="10,6"
+                Margin="20,16,0,0"
+                Click="BtnHome_Click"/>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="48,24,48,40">
+
+                <!-- Header -->
+                <StackPanel Margin="0,0,0,20">
+                    <TextBlock Text="Vigidesastres — Vigilância em Saúde Relacionada aos Riscos de Desastres"
+                               FontSize="11" Foreground="#666666"/>
+                    <TextBlock Text="Monitor de Secas"
+                               FontSize="22" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Shapefiles mensais · Monitor de Secas / ANA"
+                               FontSize="14" Foreground="#999999"/>
+                </StackPanel>
+
+                <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
+
+                <!-- Logo -->
+                <Image Width="180" Height="180"
+                       Margin="0,0,0,24"
+                       HorizontalAlignment="Left"
+                       RenderOptions.BitmapScalingMode="HighQuality"
+                       Source="/Assets/Vigidesastres_Logo.png"/>
+
+                <!-- Description -->
+                <TextBlock TextWrapping="Wrap"
+                           Foreground="#cccccc"
+                           FontSize="13"
+                           Margin="0,0,0,8">
+                    Baixa os mapas mensais do Monitor de Secas (ANA) em formato shapefile e
+                    extrai cada mês em uma pasta própria dentro da Pasta Secas, mantendo
+                    também o ZIP original.
+                </TextBlock>
+
+                <TextBlock TextWrapping="Wrap"
+                           Foreground="#666666"
+                           FontSize="12"
+                           Margin="0,0,0,32">
+                    Meses já baixados são pulados. Meses ainda não publicados pela ANA
+                    são ignorados e baixados numa próxima execução.
+                </TextBlock>
+
+                <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
+
+                <!-- Year selection -->
+                <StackPanel Margin="0,0,0,24">
+                    <TextBlock Text="Anos a baixar" Foreground="#999999" FontSize="12" Margin="0,0,0,6"/>
+                    <TextBlock Text="Clique para selecionar um ou mais anos."
+                               FontSize="11" Foreground="#555555" Margin="0,0,0,8"/>
+                    <ListBox x:Name="ListBoxAnos"
+                             SelectionMode="Multiple"
+                             Height="120"
+                             Background="#1a1a1a"
+                             Foreground="#e5e7e6"
+                             BorderBrush="#333333"
+                             BorderThickness="1"
+                             FontSize="13"
+                             Width="200"
+                             HorizontalAlignment="Left"/>
+                </StackPanel>
+
+                <!-- Action -->
+                <Button x:Name="BtnStart"
+                        Content="Iniciar download"
+                        HorizontalAlignment="Left"
+                        Style="{StaticResource SidebarButton}"
+                        Padding="16,8"
+                        Margin="0,0,0,16"
+                        Click="BtnStart_Click"/>
+
+                <!-- Summary -->
+                <TextBlock x:Name="TxtSummary"
+                           Foreground="#1D9E75"
+                           FontSize="13"
+                           Margin="0,0,0,8"/>
+
+                <!-- Status log -->
+                <Border Background="#111111"
+                        BorderBrush="#2e2e2e"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="12"
+                        MinHeight="60">
+                    <ScrollViewer x:Name="StatusScroll"
+                                  MaxHeight="300"
+                                  VerticalScrollBarVisibility="Auto">
+                        <TextBlock x:Name="TxtStatus"
+                                   Foreground="#9CA3A0"
+                                   FontSize="12"
+                                   FontFamily="Consolas"
+                                   TextWrapping="Wrap"/>
+                    </ScrollViewer>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+
+</views:BaseView>
